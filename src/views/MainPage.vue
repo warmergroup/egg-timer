@@ -181,6 +181,17 @@ const showInfoMessage = (message: string) => {
   }, 4000)
 }
 
+// Test mobile notification
+const testMobileNotification = () => {
+  if (timer.notificationPermission.value === 'granted') {
+    // Use the timer's showNotification method
+    timer.showNotification('🔔 Test Notification', {
+      body: 'Notifications are working! Your egg timer will now notify you.',
+      requireInteraction: false
+    })
+  }
+}
+
 const handleSizeSelection = (size: any) => {
   selectedEggSize.value = size.label
 

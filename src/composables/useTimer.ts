@@ -12,9 +12,31 @@ export function useTimer() {
   // Request notification permission
   const requestNotificationPermission = async () => {
     if ('Notification' in window) {
-      const permission = await Notification.requestPermission()
-      notificationPermission.value = permission
-      return permission
+      try {
+        // Check if we're in a mobile browser
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        
+        // For mobile, try to request permission more aggressively
+        if (isMobile) {
+          // Some mobile browsers need user interaction
+          const permission = await Notification.requestPermission()
+          notificationPermission.value = permission
+          
+          // If permission denied, show a helpful message
+          if (permission === 'denied') {
+            console.log('Notification permission denied on mobile. User may need to enable in browser settings.')
+          }
+          
+          return permission
+        } else {
+          const permission = await Notification.requestPermission()
+          notificationPermission.value = permission
+          return permission
+        }
+      } catch (error) {
+        console.warn('Notification permission request failed:', error)
+        return 'denied'
+      }
     }
     return 'denied'
   }
@@ -22,34 +44,56 @@ export function useTimer() {
   // Check notification permission
   const checkNotificationPermission = () => {
     if ('Notification' in window) {
-      notificationPermission.value = Notification.permission
-      return Notification.permission
+      const permission = Notification.permission
+      notificationPermission.value = permission
+      
+      // Log permission status for debugging
+      console.log('Notification permission status:', permission)
+      
+      return permission
     }
     return 'denied'
   }
 
-  // Show notification
+  // Show notification with mobile fallback
   const showNotification = (title: string, options?: NotificationOptions) => {
     if (notificationPermission.value === 'granted') {
       // Check if page is visible
       if (document.hidden) {
-        // Page is hidden, show notification
-        new Notification(title, {
-          icon: '/eggtimer-logo.png',
-          badge: '/eggtimer-logo.png',
-          tag: 'eggtimer',
-          requireInteraction: true,
-          ...options
-        })
+        try {
+          // Page is hidden, show notification
+          const notification = new Notification(title, {
+            icon: '/eggtimer-logo.png',
+            badge: '/eggtimer-logo.png',
+            tag: 'eggtimer',
+            requireInteraction: true,
+            ...options
+          })
+          
+          // Add click handler for mobile
+          notification.onclick = () => {
+            window.focus()
+            notification.close()
+          }
+          
+          console.log('Desktop notification shown:', title)
+        } catch (error) {
+          console.warn('Desktop notification failed, falling back to in-app:', error)
+          showInAppNotification(title, options)
+        }
       } else {
         // Page is visible, show in-app notification
-        showInAppNotification(title)
+        showInAppNotification(title, options)
       }
+    } else {
+      // Permission not granted, always show in-app notification
+      console.log('Notification permission not granted, showing in-app notification')
+      showInAppNotification(title, options)
     }
   }
 
   // Show in-app notification when page is visible
-  const showInAppNotification = (title: string) => {
+  const showInAppNotification = (title: string, options?: NotificationOptions) => {
     // Create a simple in-app notification
     const notification = document.createElement('div')
     notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300'
@@ -248,6 +292,7 @@ export function useTimer() {
     notificationPermission,
     requestNotificationPermission,
     checkNotificationPermission,
+    showNotification,
     startTimer,
     pauseTimer,
     resumeTimer,
