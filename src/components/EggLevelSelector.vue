@@ -9,7 +9,7 @@
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
       <div v-for="level in cookingLevels" :key="level.id"
-        class="group cursor-pointer transition-all duration-500 ease-out" @click="selectLevel(level)">
+        class="group cursor-pointer transition-all duration-500 ease-out" @click="selectLevel(level as CookingLevel)">
 
         <!-- True Neumorphic Cooking Level Card - Matching EggSizeSelector design with enhanced shadows -->
         <div
