@@ -79,21 +79,21 @@ export function useTimer() {
           console.log('Desktop notification shown:', title)
         } catch (error) {
           console.warn('Desktop notification failed, falling back to in-app:', error)
-          showInAppNotification(title, options)
+          showInAppNotification(title)
         }
       } else {
         // Page is visible, show in-app notification
-        showInAppNotification(title, options)
+        showInAppNotification(title)
       }
     } else {
       // Permission not granted, always show in-app notification
       console.log('Notification permission not granted, showing in-app notification')
-      showInAppNotification(title, options)
+      showInAppNotification(title)
     }
   }
 
   // Show in-app notification when page is visible
-  const showInAppNotification = (title: string, options?: NotificationOptions) => {
+  const showInAppNotification = (title: string) => {
     // Create a simple in-app notification
     const notification = document.createElement('div')
     notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300'
