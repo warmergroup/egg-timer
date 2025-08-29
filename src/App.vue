@@ -16,7 +16,7 @@ const addStructuredData = () => {
     "@type": "WebApplication",
     "name": "EggTimer - Perfect Eggs Every Time",
     "description": "Cook perfect eggs with our beautiful neumorphic timer app. Choose egg size, cooking level, and get perfectly timed results every time.",
-    "url": "https://eggtimer.sultonovdev.uz/",
+    "url": "https://eggtimer-six.vercel.app/",
     "applicationCategory": "LifestyleApplication",
     "operatingSystem": "Web Browser",
     "browserRequirements": "Requires JavaScript. Requires HTML5.",
