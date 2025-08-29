@@ -1,10 +1,111 @@
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, onMounted } from 'vue'
 
 export function useTimer() {
   const time = ref(0)
   const isRunning = ref(false)
   const originalTime = ref(0)
+  const notificationPermission = ref<NotificationPermission>('default')
   let intervalId: NodeJS.Timeout | null = null
+  let audioContext: AudioContext | null = null
+  let audioBuffer: AudioBuffer | null = null
+
+  // Request notification permission
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window) {
+      const permission = await Notification.requestPermission()
+      notificationPermission.value = permission
+      return permission
+    }
+    return 'denied'
+  }
+
+  // Check notification permission
+  const checkNotificationPermission = () => {
+    if ('Notification' in window) {
+      notificationPermission.value = Notification.permission
+      return Notification.permission
+    }
+    return 'denied'
+  }
+
+  // Show notification
+  const showNotification = (title: string, options?: NotificationOptions) => {
+    if (notificationPermission.value === 'granted') {
+      // Check if page is visible
+      if (document.hidden) {
+        // Page is hidden, show notification
+        new Notification(title, {
+          icon: '/eggtimer-logo.png',
+          badge: '/eggtimer-logo.png',
+          tag: 'eggtimer',
+          requireInteraction: true,
+          ...options
+        })
+      } else {
+        // Page is visible, show in-app notification
+        showInAppNotification(title, options)
+      }
+    }
+  }
+
+  // Show in-app notification when page is visible
+  const showInAppNotification = (title: string, options?: NotificationOptions) => {
+    // Create a simple in-app notification
+    const notification = document.createElement('div')
+    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300'
+    notification.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+        <span class="font-medium">${title}</span>
+      </div>
+    `
+    
+    document.body.appendChild(notification)
+    
+    // Animate in
+    setTimeout(() => {
+      notification.classList.remove('translate-x-full')
+    }, 100)
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+      notification.classList.add('translate-x-full')
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification)
+        }
+      }, 300)
+    }, 5000)
+  }
+
+  // Load audio file
+  const loadAudio = async () => {
+    try {
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const response = await fetch('/timer-done.mp3')
+      const arrayBuffer = await response.arrayBuffer()
+      audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+    } catch (error) {
+      console.warn('Audio loading failed:', error)
+    }
+  }
+
+  // Play audio notification
+  const playAudio = () => {
+    if (audioContext && audioBuffer && audioContext.state === 'running') {
+      const source = audioContext.createBufferSource()
+      source.buffer = audioBuffer
+      source.connect(audioContext.destination)
+      source.start(0)
+    }
+  }
+
+  // Resume audio context if suspended
+  const resumeAudioContext = async () => {
+    if (audioContext && audioContext.state === 'suspended') {
+      await audioContext.resume()
+    }
+  }
 
   const progress = computed(() => {
     if (originalTime.value === 0) return 0
@@ -26,9 +127,25 @@ export function useTimer() {
     originalTime.value = initialTime
     isRunning.value = true
     
+    // Resume audio context when starting timer
+    resumeAudioContext()
+    
     intervalId = setInterval(() => {
       if (time.value > 0) {
         time.value--
+        
+        // Play audio when 7 seconds remaining
+        if (time.value === 7) {
+          playAudio()
+        }
+        
+        // Show notification when timer ends
+        if (time.value === 0) {
+          showNotification('🥚 Egg Timer Complete!', {
+            body: 'Your egg is ready! Time to enjoy your perfectly cooked egg.',
+            requireInteraction: true
+          })
+        }
       } else {
         stopTimer()
       }
@@ -49,6 +166,19 @@ export function useTimer() {
       intervalId = setInterval(() => {
         if (time.value > 0) {
           time.value--
+          
+          // Play audio when 7 seconds remaining
+          if (time.value === 7) {
+            playAudio()
+          }
+          
+          // Show notification when timer ends
+          if (time.value === 0) {
+            showNotification('🥚 Egg Timer Complete!', {
+              body: 'Your egg is ready! Time to enjoy your perfectly cooked egg.',
+              requireInteraction: true
+            })
+          }
         } else {
           stopTimer()
         }
@@ -79,9 +209,33 @@ export function useTimer() {
     }
   }
 
+  onMounted(() => {
+    // Check notification permission on mount
+    checkNotificationPermission()
+    
+    // Load audio file
+    loadAudio()
+    
+    // Add visibility change listener for background notifications
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && isRunning.value && time.value > 0) {
+        // Page became hidden while timer is running
+        showNotification('🥚 Egg Timer Running', {
+          body: `Your egg is cooking! ${formattedTime.value} remaining.`,
+          tag: 'eggtimer-running',
+          requireInteraction: false
+        })
+      }
+    })
+  })
+
   onUnmounted(() => {
     if (intervalId) {
       clearInterval(intervalId)
+    }
+    // Clean up audio context
+    if (audioContext) {
+      audioContext.close()
     }
   })
 
@@ -91,6 +245,9 @@ export function useTimer() {
     originalTime,
     progress,
     formattedTime,
+    notificationPermission,
+    requestNotificationPermission,
+    checkNotificationPermission,
     startTimer,
     pauseTimer,
     resumeTimer,
