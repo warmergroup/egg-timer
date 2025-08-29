@@ -1,48 +1,3 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-
-interface EggSize {
-  label: string
-  weight: string
-  timeInSeconds: number
-}
-
-const emit = defineEmits<{
-  selectSize: [size: EggSize]
-}>()
-
-const selectedSize = ref<EggSize | null>(null)
-
-const eggSizes: EggSize[] = [
-  {
-    label: 'Small',
-    weight: '40g',
-    timeInSeconds: 0 // Will be calculated based on level
-  },
-  {
-    label: 'Medium',
-    weight: '55g',
-    timeInSeconds: 0 // Will be calculated based on level
-  },
-  {
-    label: 'Large',
-    weight: '65g',
-    timeInSeconds: 0 // Will be calculated based on level
-  },
-  {
-    label: 'Extra Large',
-    weight: '70-90g',
-    timeInSeconds: 0 // Will be calculated based on level
-  }
-]
-
-const selectSize = (size: EggSize) => {
-  selectedSize.value = size
-  emit('selectSize', size)
-}
-</script>
-
-
 <template>
   <div class="flex flex-col items-center space-y-8 animate-fade-up">
     <div class="text-center mb-6">
@@ -92,7 +47,49 @@ const selectSize = (size: EggSize) => {
   </div>
 </template>
 
+<script setup lang="ts">
+import { ref } from 'vue'
 
+interface EggSize {
+  label: string
+  weight: string
+  timeInSeconds: number
+}
+
+const emit = defineEmits<{
+  selectSize: [size: EggSize]
+}>()
+
+const selectedSize = ref<EggSize | null>(null)
+
+const eggSizes: EggSize[] = [
+  {
+    label: 'Small',
+    weight: '40g',
+    timeInSeconds: 0 // Will be calculated based on level
+  },
+  {
+    label: 'Medium',
+    weight: '55g',
+    timeInSeconds: 0 // Will be calculated based on level
+  },
+  {
+    label: 'Large',
+    weight: '65g',
+    timeInSeconds: 0 // Will be calculated based on level
+  },
+  {
+    label: 'Extra Large',
+    weight: '70-90g',
+    timeInSeconds: 0 // Will be calculated based on level
+  }
+]
+
+const selectSize = (size: EggSize) => {
+  selectedSize.value = size
+  emit('selectSize', size)
+}
+</script>
 
 <style scoped>
 /* Press effect instead of hover */
