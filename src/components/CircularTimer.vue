@@ -25,8 +25,11 @@ const emit = defineEmits<{
 
 const isPaused = ref(false)
 
-const circumference = computed(() => 2 * Math.PI * 90)
+// Perfect animation control with proper timing
+const showStart = ref(true)
+const showControls = ref(false)
 
+const circumference = computed(() => 2 * Math.PI * 90)
 const strokeDashoffset = computed(() => {
   return circumference.value - (props.progress / 100) * circumference.value
 })
@@ -50,6 +53,38 @@ const reset = () => {
   emit('reset')
   isPaused.value = false
 }
+
+// Perfect animation control functions
+const handleStartClick = () => {
+  // Start button fades out completely first
+  showStart.value = false
+  start()
+}
+
+// START butkul yo'qolgachgina control chiqadi
+const onStartAfterLeave = () => {
+  showControls.value = true
+}
+
+const handleResetClick = () => {
+  // Reset and Pause/Resume slide out to sides first
+  showControls.value = false
+  reset()
+}
+
+// CONTROLS butkul yo'qolgachgina start qaytadi
+const onControlsAfterLeave = () => {
+  showStart.value = true
+}
+
+const handlePauseResumeClick = () => {
+  // Just toggle between pause/resume text
+  if (isPaused.value) {
+    resume()
+  } else {
+    pause()
+  }
+}
 </script>
 
 
@@ -67,35 +102,37 @@ const reset = () => {
       <div class="hidden md:flex items-start justify-between">
         <!-- Left Side: ALL Control Buttons -->
         <div class="flex flex-col gap-4 w-48">
-          <!-- Start/Reset Button with smooth width transition -->
-          <Transition name="slide-left" mode="out-in">
-            <button v-if="!isRunning && !isPaused" @click="start" key="start"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
+          <!-- Start/Reset and Pause/Resume Buttons - Side by side for desktop -->
+          <div class="flex gap-4 justify-center">
+            <!-- Reset Button - Slides in from left, slides out to left -->
+            <Transition name="slide-left" @after-leave="onControlsAfterLeave">
+              <button v-if="showControls" @click="handleResetClick" key="reset"
+                class="group relative px-6 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[120px]">
 
-              <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Start Cooking</span>
-            </button>
+                <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Reset</span>
+              </button>
+            </Transition>
 
-            <button v-else @click="reset" key="reset"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
+            <!-- Start Button - Always in center, fades out when clicked -->
+            <Transition name="fade-scale" @after-leave="onStartAfterLeave">
+              <button v-if="showStart" @click="handleStartClick" key="start"
+                class="group relative px-6 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[120px]">
 
-              <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Reset</span>
-            </button>
-          </Transition>
+                <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Start</span>
+              </button>
+            </Transition>
 
-          <!-- Pause/Resume Button - Appears with smooth animation -->
-          <Transition name="slide-right" mode="out-in">
-            <button v-if="isRunning" @click="pause" key="pause"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
-              <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Pause</span>
-            </button>
+            <!-- Pause/Resume Button - Slides in from right, slides out to right -->
+            <Transition name="slide-right" @after-leave="onControlsAfterLeave">
+              <button v-if="showControls" @click="handlePauseResumeClick"
+                class="group relative px-6 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[120px]">
 
-            <button v-else-if="isPaused" @click="resume" key="resume"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
-
-              <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Resume</span>
-            </button>
-          </Transition>
+                <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">{{ isPaused ? 'Resume' :
+                  'Pause' }}</span>
+              </button>
+            </Transition>
+          </div>
 
           <!-- Timer Controls - Adjust Time Buttons -->
           <div class="mt-6">
@@ -162,9 +199,9 @@ const reset = () => {
                 <!-- Background circle -->
                 <circle cx="100" cy="100" r="90" stroke="#E5E7EB" stroke-width="8" fill="none" class="opacity-30" />
 
-                <!-- Progress circle - Egg yolk color -->
-                <circle cx="100" cy="100" r="90" stroke="#F59E0B" stroke-width="8" fill="none" stroke-linecap="round"
-                  :stroke-dasharray="circumference" :stroke-dashoffset="strokeDashoffset"
+                <!-- Progress circle - Egg yolk color when running, gray when paused -->
+                <circle cx="100" cy="100" r="90" :stroke="isPaused ? '#9CA3AF' : '#F59E0B'" stroke-width="8" fill="none"
+                  stroke-linecap="round" :stroke-dasharray="circumference" :stroke-dashoffset="strokeDashoffset"
                   class="transition-all duration-1000 ease-out drop-shadow-lg" />
               </svg>
 
@@ -174,7 +211,7 @@ const reset = () => {
                   {{ formattedTime }}
                 </div>
                 <div class="text-base text-gray-500 mb-6 font-medium">
-                  {{ isRunning ? 'Cooking...' : isPaused ? 'Paused' : 'Ready to Start' }}
+                  {{ isRunning ? 'Boiling...' : isPaused ? 'Paused' : 'Press Start' }}
                 </div>
               </div>
             </div>
@@ -197,9 +234,9 @@ const reset = () => {
                 <!-- Background circle -->
                 <circle cx="100" cy="100" r="90" stroke="#E5E7EB" stroke-width="8" fill="none" class="opacity-30" />
 
-                <!-- Progress circle - Egg yolk color -->
-                <circle cx="100" cy="100" r="90" stroke="#F59E0B" stroke-width="8" fill="none" stroke-linecap="round"
-                  :stroke-dasharray="circumference" :stroke-dashoffset="strokeDashoffset"
+                <!-- Progress circle - Egg yolk color when running, gray when paused -->
+                <circle cx="100" cy="100" r="90" :stroke="isPaused ? '#9CA3AF' : '#F59E0B'" stroke-width="8" fill="none"
+                  stroke-linecap="round" :stroke-dasharray="circumference" :stroke-dashoffset="strokeDashoffset"
                   class="transition-all duration-1000 ease-out drop-shadow-lg" />
               </svg>
 
@@ -218,33 +255,31 @@ const reset = () => {
 
         <!-- Start/Reset and Pause/Resume Buttons - Side by side for mobile -->
         <div class="flex justify-center mt-8 gap-4">
-          <!-- Start/Reset Button with smooth width transition -->
-          <Transition name="slide-left" mode="out-in">
-            <button v-if="!isRunning && !isPaused" @click="start" key="start"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
-
-              <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Start</span>
-            </button>
-
-            <button v-else @click="reset" key="reset"
+          <!-- Reset Button - Slides in from left, slides out to left -->
+          <Transition name="slide-left" @after-leave="onControlsAfterLeave">
+            <button v-if="showControls" @click="handleResetClick" key="reset"
               class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
               <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Reset</span>
             </button>
           </Transition>
 
-          <!-- Pause/Resume Button - Appears with smooth animation -->
-          <Transition name="slide-right" mode="out-in">
-            <button v-if="isRunning" @click="pause" key="pause"
+          <!-- Start Button - Always in center, fades out when clicked -->
+          <Transition name="fade-scale" @after-leave="onStartAfterLeave">
+            <button v-if="showStart" @click="handleStartClick" key="start"
               class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
-              <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Pause</span>
+              <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Start</span>
             </button>
+          </Transition>
 
-            <button v-else-if="isPaused" @click="resume" key="resume"
+          <!-- Pause/Resume Button - Slides in from right, slides out to right -->
+          <Transition name="slide-right" @after-leave="onControlsAfterLeave">
+            <button v-if="showControls" @click="handlePauseResumeClick"
               class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
-              <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Resume</span>
+              <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">{{ isPaused ? 'Resume' :
+                'Pause' }}</span>
             </button>
           </Transition>
         </div>
@@ -319,7 +354,72 @@ button:active {
   animation: fade-up 0.8s ease-out;
 }
 
-/* Button slide animations */
+/* Perfect button animations with proper timing */
+
+/* Start button - Fades out in place, then others appear */
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition: all 0.5s ease;
+}
+
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Reset button - Slides in from left, slides out to left */
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: all 0.5s ease;
+}
+
+.slide-left-enter-from,
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-200%);
+}
+
+/* Pause/Resume button - Slides in from right, slides out to right */
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.5s ease;
+}
+
+.slide-right-enter-from,
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(200%);
+}
+
+/* Keep old animations for backward compatibility */
+.slide-back-enter-active,
+.slide-back-leave-active,
+.slide-in-enter-active,
+.slide-in-leave-active {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-back-enter-from {
+  opacity: 0;
+  transform: translateZ(-20px) scale(0.8);
+}
+
+.slide-back-leave-to {
+  opacity: 0;
+  transform: translateZ(-20px) scale(0.8);
+}
+
+.slide-in-enter-from {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+.slide-in-leave-to {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
 .slide-left-enter-active,
 .slide-left-leave-active,
 .slide-right-enter-active,
