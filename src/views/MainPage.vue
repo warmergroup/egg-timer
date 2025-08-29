@@ -184,6 +184,9 @@ const showInfoMessage = (message: string) => {
 const handleSizeSelection = (size: any) => {
   selectedEggSize.value = size.label
 
+  // Save selection to localStorage
+  timer.saveSelections({ size: size.label, level: '' })
+
   // Animate transition to next step - Faster transition
   setTimeout(() => {
     currentStep.value = 2
@@ -195,6 +198,12 @@ const handleSizeSelection = (size: any) => {
 const handleLevelSelection = (level: any) => {
   selectedCookingLevel.value = level.label
   selectedTimeInSeconds.value = level.timeInSeconds
+
+  // Save selections to localStorage
+  timer.saveSelections({ size: selectedEggSize.value, level: level.label })
+
+  // Set initial time in timer
+  timer.setInitialTime(level.timeInSeconds)
 
   // Animate transition to timer - Faster transition
   setTimeout(() => {
@@ -209,7 +218,7 @@ const startTimer = () => {
 }
 
 const goBack = () => {
-  timer.stopTimer()
+  timer.startOver()
   currentStep.value = 1
   selectedEggSize.value = ''
   selectedCookingLevel.value = ''
@@ -229,7 +238,7 @@ const startNewTimer = () => {
   currentStep.value = 1
   selectedEggSize.value = ''
   selectedCookingLevel.value = ''
-  timer.stopTimer()
+  timer.startOver()
 }
 
 // Check notification status on mount
@@ -237,6 +246,20 @@ onMounted(() => {
   // Delay to let the page load first
   setTimeout(() => {
     checkNotificationStatus()
+
+    // Load saved selections and progress from localStorage
+    const savedSelections = timer.loadSelections()
+    if (savedSelections && savedSelections.size && savedSelections.level) {
+      // Restore selections
+      selectedEggSize.value = savedSelections.size
+      selectedCookingLevel.value = savedSelections.level
+
+      // Find the corresponding time for the saved selections
+      // This will be handled by the timer's loadProgress function
+
+      // If we have both size and level, go directly to timer step
+      currentStep.value = 3
+    }
   }, 1000)
 })
 

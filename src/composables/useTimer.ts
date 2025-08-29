@@ -162,6 +162,72 @@ export function useTimer() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   })
 
+  // Save progress to localStorage
+  const saveProgress = () => {
+    const progress = {
+      time: time.value,
+      originalTime: originalTime.value,
+      isRunning: isRunning.value,
+      timestamp: Date.now()
+    }
+    localStorage.setItem('eggtimer-progress', JSON.stringify(progress))
+  }
+
+  // Load progress from localStorage
+  const loadProgress = () => {
+    try {
+      const saved = localStorage.getItem('eggtimer-progress')
+      if (saved) {
+        const progress = JSON.parse(saved)
+        // Only restore if less than 1 hour old
+        if (Date.now() - progress.timestamp < 3600000) {
+          time.value = progress.time
+          originalTime.value = progress.originalTime
+          return true
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load progress from localStorage:', error)
+    }
+    return false
+  }
+
+  // Save egg selections
+  const saveSelections = (selections: { size: string; level: string }) => {
+    localStorage.setItem('eggtimer-selections', JSON.stringify(selections))
+  }
+
+  // Load egg selections
+  const loadSelections = () => {
+    try {
+      const saved = localStorage.getItem('eggtimer-selections')
+      if (saved) {
+        return JSON.parse(saved)
+      }
+    } catch (error) {
+      console.warn('Failed to load selections from localStorage:', error)
+    }
+    return null
+  }
+
+  // Start over - completely reset timer state
+  const startOver = () => {
+    stopTimer()
+    time.value = 0
+    originalTime.value = 0
+    // Clear localStorage
+    localStorage.removeItem('eggtimer-progress')
+    localStorage.removeItem('eggtimer-selections')
+  }
+
+  // Set initial time from external source (egg size/level selection)
+  const setInitialTime = (initialTime: number) => {
+    time.value = initialTime
+    originalTime.value = initialTime
+    // Save to localStorage
+    saveProgress()
+  }
+
   const startTimer = (initialTime: number) => {
     if (intervalId) {
       clearInterval(intervalId)
@@ -174,9 +240,15 @@ export function useTimer() {
     // Resume audio context when starting timer
     resumeAudioContext()
     
+    // Save progress
+    saveProgress()
+    
     intervalId = setInterval(() => {
       if (time.value > 0) {
         time.value--
+        
+        // Save progress every second
+        saveProgress()
         
         // Play audio when 7 seconds remaining
         if (time.value === 7) {
@@ -202,14 +274,22 @@ export function useTimer() {
       intervalId = null
     }
     isRunning.value = false
+    // Save progress when paused
+    saveProgress()
   }
 
   const resumeTimer = () => {
     if (!isRunning.value && time.value > 0) {
       isRunning.value = true
+      // Save progress when resumed
+      saveProgress()
+      
       intervalId = setInterval(() => {
         if (time.value > 0) {
           time.value--
+          
+          // Save progress every second
+          saveProgress()
           
           // Play audio when 7 seconds remaining
           if (time.value === 7) {
@@ -236,11 +316,15 @@ export function useTimer() {
       intervalId = null
     }
     isRunning.value = false
+    // Save progress when stopped
+    saveProgress()
   }
 
   const resetTimer = () => {
     stopTimer()
     time.value = originalTime.value
+    // Save progress when reset
+    saveProgress()
   }
 
   const adjustTime = (adjustment: number) => {
@@ -250,6 +334,8 @@ export function useTimer() {
       if (originalTime.value < time.value) {
         originalTime.value = time.value
       }
+      // Save progress when time is adjusted
+      saveProgress()
     }
   }
 
@@ -259,6 +345,9 @@ export function useTimer() {
     
     // Load audio file
     loadAudio()
+    
+    // Load progress from localStorage on mount
+    loadProgress()
     
     // Add visibility change listener for background notifications
     document.addEventListener('visibilitychange', () => {
@@ -298,6 +387,12 @@ export function useTimer() {
     resumeTimer,
     stopTimer,
     resetTimer,
-    adjustTime
+    adjustTime,
+    startOver,
+    setInitialTime,
+    saveProgress,
+    loadProgress,
+    saveSelections,
+    loadSelections
   }
 }
