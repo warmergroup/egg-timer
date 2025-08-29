@@ -341,8 +341,8 @@ export function useTimer() {
     const newTime = time.value + adjustment
     if (newTime >= 0) {
       time.value = newTime
-      // Update originalTime if time was increased and timer hasn't started
-      if (!isRunning.value && newTime > originalTime.value) {
+      // Update originalTime if time was increased (both when running and not running)
+      if (newTime > originalTime.value) {
         originalTime.value = newTime
       }
       // Save progress when time is adjusted
