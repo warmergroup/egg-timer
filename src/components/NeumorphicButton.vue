@@ -95,6 +95,7 @@ button:hover {
 
 button:active {
   /* Remove scale and animation, keep only shadow change */
+  transform: translateY(2px);
 }
 
 button:disabled {

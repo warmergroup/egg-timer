@@ -305,7 +305,7 @@ const reset = () => {
 <style scoped>
 /* Press effect instead of hover */
 button:active {
-  /* Remove scale transform, keep only shadow change */
+  transform: translateY(2px);
 }
 
 /* Smooth transitions */
