@@ -29,9 +29,15 @@ const isPaused = ref(false)
 const showStart = ref(true)
 const showControls = ref(false)
 
+// Progress state management
+const currentProgress = computed(() => {
+  if (props.originalTime === 0) return 0
+  return ((props.originalTime - props.time) / props.originalTime) * 100
+})
+
 const circumference = computed(() => 2 * Math.PI * 90)
 const strokeDashoffset = computed(() => {
-  return circumference.value - (props.progress / 100) * circumference.value
+  return circumference.value - (currentProgress.value / 100) * circumference.value
 })
 
 const start = () => {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import { useTimer } from '../composables/useTimer'
 import EggSizeSelector from '../components/EggSizeSelector.vue'
 import EggLevelSelector from '../components/EggLevelSelector.vue'
@@ -159,25 +159,39 @@ const startNewTimer = () => {
   timer.startOver()
 }
 
+// Load saved progress and selections
+const loadSavedState = () => {
+  const progressLoaded = timer.loadProgress()
+  const selectionsLoaded = timer.loadSelections()
+
+  if (progressLoaded) {
+    // If progress was loaded, update the current step to timer step
+    currentStep.value = 3
+    // Update the progress display
+    nextTick(() => {
+      // Force a re-render of the progress
+      timer.saveProgress()
+    })
+  }
+
+  if (selectionsLoaded) {
+    // If selections were loaded, update the current step accordingly
+    if (timer.originalTime.value > 0) {
+      currentStep.value = 3
+    } else if (timer.selections.value.level) {
+      currentStep.value = 2
+    } else if (timer.selections.value.size) {
+      currentStep.value = 1
+    }
+  }
+}
+
 // Check notification status on mount
 onMounted(() => {
   // Delay to let the page load first
   setTimeout(() => {
     checkNotificationStatus()
-
-    // Load saved selections and progress from localStorage
-    const savedSelections = timer.loadSelections()
-    if (savedSelections && savedSelections.size && savedSelections.level) {
-      // Restore selections
-      selectedEggSize.value = savedSelections.size
-      selectedCookingLevel.value = savedSelections.level
-
-      // Find the corresponding time for the saved selections
-      // This will be handled by the timer's loadProgress function
-
-      // If we have both size and level, go directly to timer step
-      currentStep.value = 3
-    }
+    loadSavedState()
   }, 1000)
 })
 

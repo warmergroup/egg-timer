@@ -2,10 +2,16 @@ import { ref, computed, onUnmounted, onMounted } from 'vue'
 
 export function useTimer() {
   const time = ref(0)
-  const isRunning = ref(false)
   const originalTime = ref(0)
-  const notificationPermission = ref<NotificationPermission>('default')
+  const isRunning = ref(false)
+  const isPaused = ref(false)
   let intervalId: NodeJS.Timeout | null = null
+
+  // Selections state
+  const selections = ref({ size: '', level: '' })
+
+  // Notification and audio state
+  const notificationPermission = ref<NotificationPermission>('default')
   let audioContext: AudioContext | null = null
   let audioBuffer: AudioBuffer | null = null
 
@@ -164,30 +170,50 @@ export function useTimer() {
 
   // Save progress to localStorage
   const saveProgress = () => {
-    const progress = {
-      time: time.value,
-      originalTime: originalTime.value,
-      isRunning: isRunning.value,
-      timestamp: Date.now()
+    if (time.value > 0) {
+      const progress = {
+        time: time.value,
+        originalTime: originalTime.value,
+        isRunning: isRunning.value,
+        isPaused: isPaused.value,
+        progress: ((originalTime.value - time.value) / originalTime.value) * 100,
+        timestamp: Date.now()
+      }
+      localStorage.setItem('timerProgress', JSON.stringify(progress))
     }
-    localStorage.setItem('eggtimer-progress', JSON.stringify(progress))
   }
 
   // Load progress from localStorage
   const loadProgress = () => {
-    try {
-      const saved = localStorage.getItem('eggtimer-progress')
-      if (saved) {
+    const saved = localStorage.getItem('timerProgress')
+    if (saved) {
+      try {
         const progress = JSON.parse(saved)
-        // Only restore if less than 1 hour old
-        if (Date.now() - progress.timestamp < 3600000) {
-          time.value = progress.time
-          originalTime.value = progress.originalTime
+        const now = Date.now()
+        const elapsed = (now - progress.timestamp) / 1000 // seconds
+        
+        // If timer was running and not paused, calculate remaining time
+        if (progress.isRunning && !progress.isPaused && elapsed > 0) {
+          const remainingTime = Math.max(0, progress.time - elapsed)
+          if (remainingTime > 0) {
+            // Round to nearest second to avoid floating point errors
+            time.value = Math.round(remainingTime)
+            originalTime.value = Math.round(progress.originalTime)
+            isRunning.value = true
+            isPaused.value = false
+            return true
+          }
+        } else if (progress.isPaused) {
+          // If timer was paused, restore paused state
+          time.value = Math.round(progress.time)
+          originalTime.value = Math.round(progress.originalTime)
+          isRunning.value = false
+          isPaused.value = true
           return true
         }
+      } catch (error) {
+        console.error('Error loading timer progress:', error)
       }
-    } catch (error) {
-      console.warn('Failed to load progress from localStorage:', error)
     }
     return false
   }
@@ -216,7 +242,7 @@ export function useTimer() {
     time.value = 0
     originalTime.value = 0
     // Clear localStorage
-    localStorage.removeItem('eggtimer-progress')
+    localStorage.removeItem('timerProgress')
     localStorage.removeItem('eggtimer-selections')
   }
 
@@ -246,6 +272,7 @@ export function useTimer() {
     }
     
     isRunning.value = true
+    isPaused.value = false
     
     // Resume audio context when starting timer
     resumeAudioContext()
@@ -284,13 +311,15 @@ export function useTimer() {
       intervalId = null
     }
     isRunning.value = false
+    isPaused.value = true
     // Save progress when paused
     saveProgress()
   }
 
   const resumeTimer = () => {
-    if (!isRunning.value && time.value > 0) {
+    if (!isRunning.value && isPaused.value && time.value > 0) {
       isRunning.value = true
+      isPaused.value = false
       // Save progress when resumed
       saveProgress()
       
@@ -326,6 +355,9 @@ export function useTimer() {
       intervalId = null
     }
     isRunning.value = false
+    isPaused.value = false
+    time.value = 0
+    originalTime.value = 0
     // Save progress when stopped
     saveProgress()
   }
@@ -386,6 +418,7 @@ export function useTimer() {
   return {
     time,
     isRunning,
+    isPaused,
     originalTime,
     progress,
     formattedTime,
@@ -404,6 +437,7 @@ export function useTimer() {
     saveProgress,
     loadProgress,
     saveSelections,
-    loadSelections
+    loadSelections,
+    selections
   }
 }
