@@ -228,13 +228,23 @@ export function useTimer() {
     saveProgress()
   }
 
+
+
   const startTimer = (initialTime: number) => {
     if (intervalId) {
       clearInterval(intervalId)
     }
     
-    time.value = initialTime
-    originalTime.value = initialTime
+    // Check if time was adjusted before starting
+    if (time.value > 0 && time.value !== initialTime) {
+      // Time was adjusted, use the adjusted time as originalTime
+      originalTime.value = time.value
+    } else {
+      // Use the initial time from selection
+      time.value = initialTime
+      originalTime.value = initialTime
+    }
+    
     isRunning.value = true
     
     // Resume audio context when starting timer
@@ -331,8 +341,9 @@ export function useTimer() {
     const newTime = time.value + adjustment
     if (newTime >= 0) {
       time.value = newTime
-      if (originalTime.value < time.value) {
-        originalTime.value = time.value
+      // Update originalTime if time was increased and timer hasn't started
+      if (!isRunning.value && newTime > originalTime.value) {
+        originalTime.value = newTime
       }
       // Save progress when time is adjusted
       saveProgress()
