@@ -18,19 +18,12 @@ export default defineConfig({
   },
   build: {
     target: 'es2015',
-    minify: 'terser',
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['vue'],
-          utils: ['vue-router']
+          vendor: ['vue']
         }
-      }
-    },
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
       }
     }
   },
