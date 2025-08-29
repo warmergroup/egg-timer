@@ -12,7 +12,7 @@
 
         <!-- Step 3: Timer Display -->
         <div v-else-if="currentStep === 3" class="space-y-8">
-          <CircularTimer :time="timer.time.value" :originalTime="timer.originalTime || 0"
+          <CircularTimer :time="timer.time.value" :originalTime="timer.originalTime.value"
             :isRunning="timer.isRunning.value" :progress="timer.progress.value"
             :formattedTime="timer.formattedTime.value" :eggSize="selectedEggSize" :cookingLevel="selectedCookingLevel"
             @start="startTimer" @pause="timer.pauseTimer" @resume="timer.resumeTimer" @reset="timer.resetTimer"

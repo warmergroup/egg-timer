@@ -88,6 +88,7 @@ export function useTimer() {
   return {
     time,
     isRunning,
+    originalTime,
     progress,
     formattedTime,
     startTimer,

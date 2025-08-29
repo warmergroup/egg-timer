@@ -63,8 +63,6 @@ const emit = defineEmits<{
 const selectedLevel = ref('')
 const windowWidth = ref(window.innerWidth)
 
-const isMobile = computed(() => windowWidth.value < 768)
-
 // Calculate cooking times based on egg size
 const getCookingTimes = (eggSize: string) => {
   const times = {
@@ -107,7 +105,7 @@ const cookingLevels = computed(() => {
       image: '/soft.png',
       timeRange: times.soft.range,
       timeInSeconds: times.soft.seconds,
-      variant: 'primary'
+      variant: 'primary' as const
     },
     {
       id: 'medium',
@@ -115,7 +113,7 @@ const cookingLevels = computed(() => {
       image: '/medium.png',
       timeRange: times.medium.range,
       timeInSeconds: times.medium.seconds,
-      variant: 'secondary'
+      variant: 'secondary' as const
     },
     {
       id: 'hard',
@@ -123,7 +121,7 @@ const cookingLevels = computed(() => {
       image: '/hard.png',
       timeRange: times.hard.range,
       timeInSeconds: times.hard.seconds,
-      variant: 'accent'
+      variant: 'accent' as const
     },
     {
       id: 'extra-hard',
@@ -131,7 +129,7 @@ const cookingLevels = computed(() => {
       image: '/extra-hard.png',
       timeRange: times['extra-hard'].range,
       timeInSeconds: times['extra-hard'].seconds,
-      variant: 'primary'
+      variant: 'primary' as const
     }
   ]
 })
