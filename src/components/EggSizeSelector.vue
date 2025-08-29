@@ -7,35 +7,36 @@
       <p class="text-gray-500">Select the size that matches your egg</p>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-2xl">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
       <div v-for="size in eggSizes" :key="size.label" @click="selectSize(size)"
-        class="group relative cursor-pointer transition-all duration-500 ease-out">
+        class="group cursor-pointer transition-all duration-500 ease-out">
 
-        <!-- Egg Size Card -->
+        <!-- Egg Size Card - Same size as LevelSelector -->
         <div
-          class="relative w-full aspect-square rounded-neumorphic bg-neumorphic-light shadow-neumorphic-card hover:shadow-neumorphic-card-hover active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
+          class="relative w-40 h-40 md:w-44 md:h-44 rounded-card bg-neumorphic-light shadow-neumorphic-card hover:shadow-neumorphic-card-hover active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
 
           <!-- Egg Icon and Size Info -->
           <div class="absolute inset-0 flex flex-col items-center justify-center p-4">
             <div class="text-center">
-              <!-- Different egg sizes -->
-              <div v-if="size.label === 'Small'" class="text-4xl md:text-5xl mb-2">🥚</div>
-              <div v-else-if="size.label === 'Medium'" class="text-5xl md:text-6xl mb-2">🥚</div>
-              <div v-else-if="size.label === 'Large'" class="text-6xl md:text-7xl mb-2">🥚</div>
-              <div v-else-if="size.label === 'Extra Large'" class="text-7xl md:text-8xl mb-2">🥚</div>
+              <!-- Different egg sizes - Same proportions as LevelSelector -->
+              <div v-if="size.label === 'Small'" class="text-3xl md:text-4xl mb-2">🥚</div>
+              <div v-else-if="size.label === 'Medium'" class="text-4xl md:text-5xl mb-2">🥚</div>
+              <div v-else-if="size.label === 'Large'" class="text-5xl md:text-6xl mb-2">🥚</div>
+              <div v-else-if="size.label === 'Extra Large'" class="text-6xl md:text-7xl mb-2">🥚
+              </div>
 
               <!-- Size Label -->
-              <div class="text-sm md:text-base font-bold text-gray-700 mb-1">{{ size.label }}</div>
+              <div class="text-sm md:text-base font-medium text-gray-700 text-center mb-1">{{ size.label }}</div>
 
               <!-- Weight Info -->
               <div class="text-xs text-gray-500 font-medium">{{ size.weight }}</div>
             </div>
           </div>
 
-          <!-- Selection Check - Soft egg yolk color -->
+          <!-- Selection Check - Same size as LevelSelector -->
           <div v-if="selectedSize?.label === size.label"
-            class="absolute top-3 right-3 w-8 h-8 rounded-full bg-amber-300 flex items-center justify-center shadow-lg animate-scale-bounce">
-            <svg class="w-5 h-5 text-amber-800" fill="currentColor" viewBox="0 0 20 20">
+            class="absolute top-2 right-2 w-6 h-6 bg-amber-300 rounded-full flex items-center justify-center shadow-neumorphic-soft">
+            <svg class="w-4 h-4 text-amber-800" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd"
                 d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                 clip-rule="evenodd" />

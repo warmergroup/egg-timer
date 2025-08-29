@@ -37,7 +37,7 @@ const addStructuredData = () => {
       "Mobile responsive design",
       "Free to use"
     ],
-    "screenshot": "https://eggtimer.sultonovdev.uz/eggtimer-logo.png",
+    "screenshot": "/eggtimer-logo.png",
     "softwareVersion": "1.0.0"
   })
 
