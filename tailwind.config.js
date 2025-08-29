@@ -36,6 +36,7 @@ export default {
         'slide-up': 'slide-up 0.5s ease-out',
         'pulse-gentle': 'pulse-gentle 2s ease-in-out infinite',
         'float': 'float 3s ease-in-out infinite',
+        'button-press': 'button-press 0.15s ease-out',
       },
       keyframes: {
         'bounce-soft': {
@@ -71,6 +72,10 @@ export default {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-10px)' },
         },
+        'button-press': {
+          '0%': { transform: 'scale(1)' },
+          '100%': { transform: 'scale(0.95)' },
+        },
       },
       boxShadow: {
         // Enhanced neumorphic shadows - More pronounced and clear
@@ -91,6 +96,7 @@ export default {
         // Button shadows - More distinct
         'neumorphic-button': '-6px -6px 12px rgba(255, 255, 255, 0.9), 6px 6px 12px rgba(163, 177, 198, 0.3)',
         'neumorphic-button-pressed': 'inset 6px 6px 12px rgba(163, 177, 198, 0.4), inset -6px -6px 12px rgba(255, 255, 255, 0.8)',
+        'neumorphic-button-active': '-3px -3px 6px rgba(255, 255, 255, 0.9), 3px 3px 6px rgba(163, 177, 198, 0.3)',
       },
       borderRadius: {
         'neumorphic': '20px',

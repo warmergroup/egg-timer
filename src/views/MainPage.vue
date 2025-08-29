@@ -1,85 +1,3 @@
-<template>
-  <div class="min-h-screen bg-neumorphic-light flex items-center justify-center p-4">
-    <div class="w-full max-w-4xl mx-auto text-center">
-
-      <!-- Notification Permission Banner -->
-      <Transition name="slide-down">
-        <div v-if="showNotificationBanner"
-          class="fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 z-50 shadow-lg">
-          <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                🔔
-              </div>
-              <div class="text-left">
-                <h3 class="font-semibold">Enable Notifications</h3>
-                <p class="text-sm text-blue-100">Get notified when your egg timer is complete, even when the browser is
-                  in the background!</p>
-              </div>
-            </div>
-            <div class="flex gap-3">
-              <button @click="requestNotificationPermission"
-                class="px-6 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors">
-                Enable
-              </button>
-              <button @click="dismissNotificationBanner"
-                class="px-4 py-2 text-blue-100 hover:text-white transition-colors">
-                Dismiss
-              </button>
-            </div>
-          </div>
-        </div>
-      </Transition>
-
-      <!-- Step 1: Egg Size Selection -->
-      <Transition name="slide-fade" mode="out-in">
-        <EggSizeSelector v-if="currentStep === 1" @selectSize="handleSizeSelection" />
-
-        <!-- Step 2: Cooking Level Selection -->
-        <EggLevelSelector v-else-if="currentStep === 2" :selectedEggSize="selectedEggSize"
-          @selectLevel="handleLevelSelection" />
-
-        <!-- Step 3: Timer Display -->
-        <div v-else-if="currentStep === 3" class="space-y-8">
-          <CircularTimer :time="timer.time.value" :originalTime="timer.originalTime.value"
-            :isRunning="timer.isRunning.value" :progress="timer.progress.value"
-            :formattedTime="timer.formattedTime.value" :eggSize="selectedEggSize" :cookingLevel="selectedCookingLevel"
-            @start="startTimer" @pause="timer.pauseTimer" @resume="timer.resumeTimer" @reset="timer.resetTimer"
-            @increment="() => timer.adjustTime(10)" @decrement="() => timer.adjustTime(-10)" @startOver="goBack" />
-        </div>
-      </Transition>
-
-      <!-- Completion Modal -->
-      <Transition name="modal">
-        <div v-if="showCompletionModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          @click="closeModal">
-          <div
-            class="bg-neumorphic-light rounded-neumorphic p-8 shadow-neumorphic max-w-md w-full text-center space-y-6"
-            @click.stop>
-            <div class="text-6xl mb-4 animate-bounce-soft">🎉</div>
-            <h2 class="text-2xl font-bold text-gray-800">Egg Ready!</h2>
-            <p class="text-gray-600">Your {{ selectedCookingLevel }} {{ selectedEggSize }} egg is perfectly cooked!</p>
-
-            <div class="flex gap-4 justify-center">
-              <button @click="startNewTimer"
-                class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
-
-                <span class="relative z-10 font-medium text-gray-700 text-lg">Cook Another</span>
-              </button>
-
-              <button @click="closeModalAndReset"
-                class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
-
-                <span class="relative z-10 font-medium text-gray-700 text-lg">Done</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { useTimer } from '../composables/useTimer'
@@ -270,6 +188,90 @@ watch(() => timer.time.value, (newTime) => {
   }
 })
 </script>
+
+
+<template>
+  <div class="min-h-screen bg-neumorphic-light flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl mx-auto text-center">
+
+      <!-- Notification Permission Banner -->
+      <Transition name="slide-down">
+        <div v-if="showNotificationBanner"
+          class="fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 z-50 shadow-lg">
+          <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                🔔
+              </div>
+              <div class="text-left">
+                <h3 class="font-semibold">Enable Notifications</h3>
+                <p class="text-sm text-blue-100">Get notified when your egg timer is complete, even when the browser is
+                  in the background!</p>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <button @click="requestNotificationPermission"
+                class="px-6 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                Enable
+              </button>
+              <button @click="dismissNotificationBanner"
+                class="px-4 py-2 text-blue-100 hover:text-white transition-colors">
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
+      <!-- Step 1: Egg Size Selection -->
+      <Transition name="slide-fade" mode="out-in">
+        <EggSizeSelector v-if="currentStep === 1" @selectSize="handleSizeSelection" />
+
+        <!-- Step 2: Cooking Level Selection -->
+        <EggLevelSelector v-else-if="currentStep === 2" :selectedEggSize="selectedEggSize"
+          @selectLevel="handleLevelSelection" />
+
+        <!-- Step 3: Timer Display -->
+        <div v-else-if="currentStep === 3" class="space-y-8">
+          <CircularTimer :time="timer.time.value" :originalTime="timer.originalTime.value"
+            :isRunning="timer.isRunning.value" :progress="timer.progress.value"
+            :formattedTime="timer.formattedTime.value" :eggSize="selectedEggSize" :cookingLevel="selectedCookingLevel"
+            @start="startTimer" @pause="timer.pauseTimer" @resume="timer.resumeTimer" @reset="timer.resetTimer"
+            @increment="() => timer.adjustTime(10)" @decrement="() => timer.adjustTime(-10)" @startOver="goBack" />
+        </div>
+      </Transition>
+
+      <!-- Completion Modal -->
+      <Transition name="modal">
+        <div v-if="showCompletionModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          @click="closeModal">
+          <div
+            class="bg-neumorphic-light rounded-neumorphic p-8 shadow-neumorphic max-w-md w-full text-center space-y-6"
+            @click.stop>
+            <div class="text-6xl mb-4 animate-bounce-soft">🎉</div>
+            <h2 class="text-2xl font-bold text-gray-800">Egg Ready!</h2>
+            <p class="text-gray-600">Your {{ selectedCookingLevel }} {{ selectedEggSize }} egg is perfectly cooked!</p>
+
+            <div class="flex gap-4 justify-center">
+              <button @click="startNewTimer"
+                class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
+
+                <span class="relative z-10 font-medium text-gray-700 text-lg">Cook Another</span>
+              </button>
+
+              <button @click="closeModalAndReset"
+                class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
+
+                <span class="relative z-10 font-medium text-gray-700 text-lg">Done</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </div>
+  </div>
+</template>
+
 
 <style scoped>
 .slide-fade-enter-active,

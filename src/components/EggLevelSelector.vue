@@ -13,7 +13,7 @@
 
         <!-- True Neumorphic Cooking Level Card - Matching EggSizeSelector design with enhanced shadows -->
         <div
-          class="relative w-40 h-40 md:w-44 md:h-44 rounded-card bg-neumorphic-light shadow-neumorphic-card active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
+          class="relative w-40 h-40 md:w-44 md:h-44 rounded-card bg-neumorphic-light shadow-neumorphic-card hover:shadow-neumorphic-card-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden">
 
           <!-- Egg image -->
           <div class="relative z-10 w-full h-full flex flex-col items-center justify-center p-4">

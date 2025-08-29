@@ -2,7 +2,7 @@
   <button :class="[
     'relative overflow-hidden rounded-neumorphic border-0 cursor-pointer transition-all duration-300 ease-out',
     'bg-neumorphic-light',
-    'shadow-neumorphic hover:shadow-neumorphic-hover active:shadow-neumorphic-pressed',
+    'shadow-neumorphic hover:shadow-neumorphic-hover active:shadow-neumorphic-button-active',
     'transform hover:scale-105 active:scale-95',
     'focus:outline-none focus:ring-4 focus:ring-pastel-yellow/30',
     sizeClasses,
@@ -94,7 +94,7 @@ button:hover {
 }
 
 button:active {
-  transform: scale(0.98);
+  /* Remove scale and animation, keep only shadow change */
 }
 
 button:disabled {

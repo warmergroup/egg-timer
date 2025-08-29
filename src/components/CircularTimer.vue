@@ -1,3 +1,58 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+
+interface Props {
+  time: number
+  originalTime: number
+  isRunning: boolean
+  progress: number
+  formattedTime: string
+  eggSize: string
+  cookingLevel: string
+}
+
+const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  start: []
+  pause: []
+  resume: []
+  reset: []
+  increment: []
+  decrement: []
+  startOver: []
+}>()
+
+const isPaused = ref(false)
+
+const circumference = computed(() => 2 * Math.PI * 90)
+
+const strokeDashoffset = computed(() => {
+  return circumference.value - (props.progress / 100) * circumference.value
+})
+
+const start = () => {
+  emit('start')
+  isPaused.value = false
+}
+
+const pause = () => {
+  emit('pause')
+  isPaused.value = true
+}
+
+const resume = () => {
+  emit('resume')
+  isPaused.value = false
+}
+
+const reset = () => {
+  emit('reset')
+  isPaused.value = false
+}
+</script>
+
+
 <template>
   <div class="flex flex-col items-center space-y-8 animate-fade-up">
     <div class="text-center mb-6">
@@ -15,13 +70,13 @@
           <!-- Start/Reset Button with smooth width transition -->
           <Transition name="slide-left" mode="out-in">
             <button v-if="!isRunning && !isPaused" @click="start" key="start"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
+              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
               <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Start Cooking</span>
             </button>
 
             <button v-else @click="reset" key="reset"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
+              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
               <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Reset</span>
             </button>
@@ -30,13 +85,13 @@
           <!-- Pause/Resume Button - Appears with smooth animation -->
           <Transition name="slide-right" mode="out-in">
             <button v-if="isRunning" @click="pause" key="pause"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
+              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
               <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Pause</span>
             </button>
 
             <button v-else-if="isPaused" @click="resume" key="resume"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
+              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
               <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Resume</span>
             </button>
@@ -48,7 +103,7 @@
             <div class="flex items-center gap-4 justify-center">
               <!-- Decrement Button -->
               <button @click="$emit('decrement')"
-                class="group relative w-16 h-16 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
+                class="group relative w-16 h-16 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden">
 
                 <div class="relative z-10 w-full h-full flex items-center justify-center">
                   <svg class="w-8 h-8 text-gray-700 transition-transform duration-300" fill="none" stroke="currentColor"
@@ -66,7 +121,7 @@
 
               <!-- Increment Button -->
               <button @click="$emit('increment')"
-                class="group relative w-16 h-16 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
+                class="group relative w-16 h-16 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden">
 
                 <div class="relative z-10 w-full h-full flex items-center justify-center">
                   <svg class="w-8 h-8 text-gray-700 transition-transform duration-300" fill="none" stroke="currentColor"
@@ -80,7 +135,7 @@
 
           <!-- Start Over Button -->
           <button @click="$emit('startOver')"
-            class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden min-w-[140px] mt-6">
+            class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px] mt-6">
 
             <div class="relative z-10 flex items-center gap-3 font-medium text-gray-700 text-lg justify-center">
               <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor"
@@ -166,13 +221,13 @@
           <!-- Start/Reset Button with smooth width transition -->
           <Transition name="slide-left" mode="out-in">
             <button v-if="!isRunning && !isPaused" @click="start" key="start"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
+              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
               <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Start</span>
             </button>
 
             <button v-else @click="reset" key="reset"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
+              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
               <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Reset</span>
             </button>
@@ -181,13 +236,13 @@
           <!-- Pause/Resume Button - Appears with smooth animation -->
           <Transition name="slide-right" mode="out-in">
             <button v-if="isRunning" @click="pause" key="pause"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
+              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
               <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Pause</span>
             </button>
 
             <button v-else-if="isPaused" @click="resume" key="resume"
-              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
+              class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px]">
 
               <span class="relative z-10 font-medium text-gray-700 text-lg whitespace-nowrap">Resume</span>
             </button>
@@ -200,7 +255,7 @@
           <div class="flex items-center gap-4 justify-center">
             <!-- Decrement Button -->
             <button @click="$emit('decrement')"
-              class="group relative w-16 h-16 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
+              class="group relative w-16 h-16 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden">
 
               <div class="relative z-10 w-full h-full flex items-center justify-center">
                 <svg class="w-8 h-8 text-gray-700 transition-transform duration-300" fill="none" stroke="currentColor"
@@ -218,7 +273,7 @@
 
             <!-- Increment Button -->
             <button @click="$emit('increment')"
-              class="group relative w-16 h-16 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
+              class="group relative w-16 h-16 rounded-neumorphic bg-neumorphic-light shadow-neumorphic hover:shadow-neumorphic-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden">
 
               <div class="relative z-10 w-full h-full flex items-center justify-center">
                 <svg class="w-8 h-8 text-gray-700 transition-transform duration-300" fill="none" stroke="currentColor"
@@ -232,7 +287,7 @@
 
         <!-- Start Over Button for Mobile -->
         <button @click="$emit('startOver')"
-          class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden min-w-[140px] mt-6">
+          class="group relative px-8 py-4 rounded-neumorphic bg-neumorphic-light shadow-neumorphic active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden min-w-[140px] mt-6">
 
           <div class="relative z-10 flex items-center gap-3 font-medium text-gray-700 text-lg justify-center">
             <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor"
@@ -247,64 +302,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-
-interface Props {
-  time: number
-  originalTime: number
-  isRunning: boolean
-  progress: number
-  formattedTime: string
-  eggSize: string
-  cookingLevel: string
-}
-
-const props = defineProps<Props>()
-
-const emit = defineEmits<{
-  start: []
-  pause: []
-  resume: []
-  reset: []
-  increment: []
-  decrement: []
-  startOver: []
-}>()
-
-const isPaused = ref(false)
-
-const circumference = computed(() => 2 * Math.PI * 90)
-
-const strokeDashoffset = computed(() => {
-  return circumference.value - (props.progress / 100) * circumference.value
-})
-
-const start = () => {
-  emit('start')
-  isPaused.value = false
-}
-
-const pause = () => {
-  emit('pause')
-  isPaused.value = true
-}
-
-const resume = () => {
-  emit('resume')
-  isPaused.value = false
-}
-
-const reset = () => {
-  emit('reset')
-  isPaused.value = false
-}
-</script>
-
 <style scoped>
 /* Press effect instead of hover */
 button:active {
-  transform: scale(0.98);
+  /* Remove scale transform, keep only shadow change */
 }
 
 /* Smooth transitions */

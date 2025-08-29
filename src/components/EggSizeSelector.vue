@@ -13,7 +13,7 @@
 
         <!-- Egg Size Card - Same size as LevelSelector -->
         <div
-          class="relative w-40 h-40 md:w-44 md:h-44 rounded-card bg-neumorphic-light shadow-neumorphic-card hover:shadow-neumorphic-card-hover active:shadow-neumorphic-button-pressed transition-all duration-500 ease-out overflow-hidden">
+          class="relative w-40 h-40 md:w-44 md:h-44 rounded-card bg-neumorphic-light shadow-neumorphic-card hover:shadow-neumorphic-card-hover hover:scale-105 active:shadow-neumorphic-button-active transition-all duration-500 ease-out overflow-hidden">
 
           <!-- Egg Icon and Size Info -->
           <div class="absolute inset-0 flex flex-col items-center justify-center p-4">
