@@ -1,0 +1,45 @@
+Interactive web app main screen for an egg cooking timer, designed in modern neumorphism UI style with soft pastel colors. 
+
+- Main color: soft pastel yellow (#FDE68A) for primary elements. 
+- Secondary colors: soft green (#86EFAC) and soft pink (#FBCFE8) for secondary buttons and accents. 
+- Background: light cream gradient (#FFFDF5 to #FDF7E3). 
+- Layout: responsive using flexbox and grid for desktop and mobile. 
+- Fonts: readable sans-serif, soft colors matching UI, minimal text.
+
+Step 1: Egg Size Selection
+- Four egg-shaped buttons in the center:
+  - SM: small quail egg
+  - M: medium chicken egg
+  - L: large chicken egg
+  - XL: extra large duck/goose egg
+- Buttons are neumorphic with soft shadows, smooth rounded edges, subtle 3D effect.
+- Hover and click: bounce + scale animation.
+- On click: selected egg smoothly rises upward, fades out, and triggers next step.
+
+Step 2: Egg Cooking Level Selection
+- Replaces egg size buttons with four buttons:
+  - Soft-boiled (soft_egg.img)
+  - Medium/jammy (medium_egg.img)
+  - Hard (hard_egg.img)
+  - Extra-hard (x-hard_egg.img)
+- Buttons neumorphic, soft shadows, rounded edges, subtle 3D effect.
+- Hover: gentle bounce effect.
+- On click: stores cooking time for timer, buttons slide upward and fade out with smooth animation.
+
+Step 3: Timer Display
+- Circular timer appears in center, replacing cooking level buttons.
+- Circular progress bar along edge indicates remaining time.
+- Center displays countdown in seconds (reverse count).
+- Below timer: Increment (+) and Decrement (-) buttons, each click adds/subtracts 10 seconds.
+- Buttons neumorphic, soft shadows, hover bounce effect.
+- Timer animation: smooth, fluid, organic easing (fade + translate + scale).
+
+Additional Details:
+- All elements: smooth rounded edges, consistent neumorphism, soft 3D lighting.
+- Animations: smooth fade, translate, scale, bounce, soft easing.
+- UI minimalistic, clean, and highly interactive.
+- Background: very light cream gradient for calm, minimal distraction.
+- Step transitions: smooth slide/fade/scale for seamless UX.
+
+
+

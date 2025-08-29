@@ -1,0 +1,56 @@
+egg-timer-app/
+├─ public/
+│   ├─ soft_egg.img              # Soft-boiled egg AI generated image
+│   ├─ medium_egg.img            # Medium/jammy egg image
+│   ├─ hard_egg.img              # Hard egg image
+│   ├─ x-hard_egg.img            # Extra-hard egg image
+│   └─ favicon.ico               # Optional app icon
+│
+├─ src/
+│   ├─ assets/                   # Static assets imported by Vue
+│   │   └─ background.png        # Optional background or texture
+│   │
+│   ├─ components/
+│   │   ├─ EggSizeSelector.vue    # SM/M/L/XL egg buttons
+│   │   │   - Props: sizes array
+│   │   │   - Events: @selectSize emits selected size
+│   │   │   - Animation: bounce+scale on hover, rise+fade on click
+│   │   │
+│   │   ├─ EggLevelSelector.vue   # Soft/Medium/Hard/X-Hard buttons with AI images
+│   │   │   - Props: eggLevelImages array
+│   │   │   - Events: @selectLevel emits selected level & time
+│   │   │   - Animation: bounce on hover, slide up + fade on click
+│   │   │
+│   │   ├─ CircularTimer.vue      # Circular timer + progress bar
+│   │   │   - Props: time (seconds), running (boolean)
+│   │   │   - Slots: center countdown display
+│   │   │   - Animation: smooth progress, fade in/out
+│   │   │
+│   │   ├─ TimerControls.vue      # Increment/decrement 10s buttons
+│   │   │   - Props: step (default 10s)
+│   │   │   - Events: @increment, @decrement
+│   │   │   - Animation: neumorphic bounce on hover
+│   │   │
+│   │   └─ NeumorphicButton.vue   # Reusable neumorphic button
+│   │       - Props: label, icon, size
+│   │       - Hover: subtle bounce+scale
+│
+│   ├─ views/
+│   │   └─ MainPage.vue           # Main step-based flow
+│   │       - Manages step 1->2->3 transitions
+│   │       - Handles animations for elements rising/fading
+│   │       - Uses flex/grid for layout
+│   │
+│   ├─ composables/
+│   │   └─ useTimer.js            # Timer logic
+│   │       - Functions: startTimer, pauseTimer, resetTimer
+│   │       - Reactive countdown, progress calculation
+│   │       - Increment/decrement time
+│   │
+│   ├─ App.vue                     # Root component
+│   └─ main.js                     # Vue entry, TailwindCSS import
+│
+├─ package.json
+├─ tailwind.config.js
+├─ postcss.config.js
+└─ vite.config.js                  # Vite build configuration
