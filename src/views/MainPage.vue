@@ -133,6 +133,7 @@ onMounted(() => {
   setTimeout(() => {
     checkNotificationStatus()
     loadSavedState()
+    checkTimerCompletion() // Check for completed timers on mount
   }, 1000)
 })
 
@@ -142,6 +143,61 @@ watch(() => timer.time.value, (newTime) => {
     showCompletionModal.value = true
   }
 })
+
+// Check if timer was completed and show elapsed time
+const checkTimerCompletion = () => {
+  const elapsedTime = timer.getElapsedTimeSinceCompletion()
+
+  if (elapsedTime) {
+    // Format elapsed time message
+    let message = 'Timer completed '
+
+    if (elapsedTime.days > 0) {
+      message += `${elapsedTime.days} day${elapsedTime.days > 1 ? 's' : ''} `
+    }
+    if (elapsedTime.hours > 0) {
+      message += `${elapsedTime.hours} hour${elapsedTime.hours > 1 ? 's' : ''} `
+    }
+    if (elapsedTime.minutes > 0) {
+      message += `${elapsedTime.minutes} minute${elapsedTime.minutes > 1 ? 's' : ''} `
+    }
+
+    message += 'ago'
+
+    // Show completion message
+    showCompletionMessage(message)
+
+    // Clear the completion record
+    localStorage.removeItem('timerCompletion')
+  }
+}
+
+// Show timer completion message
+const showCompletionMessage = (message: string) => {
+  // Create completion message element
+  const completionDiv = document.createElement('div')
+  completionDiv.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-4 rounded-lg shadow-lg z-50 max-w-md text-center'
+  completionDiv.innerHTML = `
+    <div class="flex items-center gap-3">
+      <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+        <span class="text-white text-sm">🥚</span>
+      </div>
+      <div>
+        <div class="font-semibold">Timer Completed!</div>
+        <div class="text-sm">${message}</div>
+      </div>
+    </div>
+  `
+
+  document.body.appendChild(completionDiv)
+
+  // Remove after 5 seconds
+  setTimeout(() => {
+    if (completionDiv.parentNode) {
+      completionDiv.parentNode.removeChild(completionDiv)
+    }
+  }, 5000)
+}
 </script>
 
 

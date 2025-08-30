@@ -183,6 +183,38 @@ export function useTimer() {
     }
   }
 
+  // Save timer completion time
+  const saveTimerCompletion = () => {
+    const completion = {
+      completedAt: Date.now(),
+      originalTime: originalTime.value
+    }
+    localStorage.setItem('timerCompletion', JSON.stringify(completion))
+    console.log('Timer completion time saved:', new Date(completion.completedAt))
+  }
+
+  // Get elapsed time since timer completion
+  const getElapsedTimeSinceCompletion = () => {
+    const saved = localStorage.getItem('timerCompletion')
+    if (saved) {
+      try {
+        const completion = JSON.parse(saved)
+        const now = Date.now()
+        const elapsed = now - completion.completedAt
+        
+        // Convert to days, hours, minutes
+        const days = Math.floor(elapsed / (1000 * 60 * 60 * 24))
+        const hours = Math.floor((elapsed % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+        const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60))
+        
+        return { days, hours, minutes, elapsed }
+      } catch (error) {
+        console.error('Error parsing timer completion:', error)
+      }
+    }
+    return null
+  }
+
   // Background sync for timer completion
   const scheduleBackgroundSync = async (remainingTime: number) => {
     if ('serviceWorker' in navigator) {
@@ -310,10 +342,14 @@ export function useTimer() {
         
         // Show notification when timer ends
         if (time.value === 0) {
+          stopTimer()
           showNotification('🥚 Egg Timer Complete!', {
             body: 'Your egg is ready! Time to enjoy your perfectly cooked egg.',
             requireInteraction: true
           })
+          
+          // Save timer completion time
+          saveTimerCompletion()
         }
       } else {
         stopTimer()
@@ -400,10 +436,14 @@ export function useTimer() {
         
         // Show notification when timer ends
         if (time.value === 0) {
+          stopTimer()
           showNotification('🥚 Egg Timer Complete!', {
             body: 'Your egg is ready! Time to enjoy your perfectly cooked egg.',
             requireInteraction: true
           })
+          
+          // Save timer completion time
+          saveTimerCompletion()
         }
       } else {
         stopTimer()
@@ -443,10 +483,14 @@ export function useTimer() {
           
           // Show notification when timer ends
           if (time.value === 0) {
+            stopTimer()
             showNotification('🥚 Egg Timer Complete!', {
               body: 'Your egg is ready! Time to enjoy your perfectly cooked egg.',
               requireInteraction: true
             })
+            
+            // Save timer completion time
+            saveTimerCompletion()
           }
         } else {
           stopTimer()
@@ -566,6 +610,8 @@ export function useTimer() {
     loadProgress,
     saveSelections,
     loadSelections,
-    selections
+    selections,
+    saveTimerCompletion,
+    getElapsedTimeSinceCompletion
   }
 }
