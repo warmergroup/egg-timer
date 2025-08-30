@@ -40,64 +40,6 @@ const dismissNotificationBanner = () => {
   showNotificationBanner.value = false
 }
 
-// Show success message
-const showSuccessMessage = (message: string) => {
-  const notification = document.createElement('div')
-  notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300'
-  notification.innerHTML = `
-    <div class="flex items-center gap-3">
-      <div class="w-2 h-2 bg-white rounded-full"></div>
-      <span class="font-medium">${message}</span>
-    </div>
-  `
-
-  document.body.appendChild(notification)
-
-  // Animate in
-  setTimeout(() => {
-    notification.classList.remove('translate-x-full')
-  }, 100)
-
-  // Remove after 3 seconds
-  setTimeout(() => {
-    notification.classList.add('translate-x-full')
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.parentNode.removeChild(notification)
-      }
-    }, 300)
-  }, 3000)
-}
-
-// Show info message
-const showInfoMessage = (message: string) => {
-  const notification = document.createElement('div')
-  notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300'
-  notification.innerHTML = `
-    <div class="flex items-center gap-3">
-      <div class="w-2 h-2 bg-white rounded-full"></div>
-      <span class="font-medium">${message}</span>
-    </div>
-  `
-
-  document.body.appendChild(notification)
-
-  // Animate in
-  setTimeout(() => {
-    notification.classList.remove('translate-x-full')
-  }, 100)
-
-  // Remove after 4 seconds
-  setTimeout(() => {
-    notification.classList.add('translate-x-full')
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.parentNode.removeChild(notification)
-      }
-    }, 300)
-  }, 4000)
-}
-
 const handleSizeSelection = (size: any) => {
   selectedEggSize.value = size.label
 
