@@ -189,6 +189,18 @@ export function useTimer() {
       try {
         const registration = await navigator.serviceWorker.ready
         
+        // Calculate when timer will complete
+        const completionTime = Date.now() + (remainingTime * 1000)
+        
+        // Send completion time to service worker
+        if (registration.active) {
+          registration.active.postMessage({
+            type: 'SET_TIMER_COMPLETION',
+            completionTime: completionTime
+          })
+          console.log('Timer completion time sent to service worker:', new Date(completionTime))
+        }
+        
         // Schedule background sync when timer will complete
         setTimeout(async () => {
           try {
@@ -452,8 +464,30 @@ export function useTimer() {
     isPaused.value = false
     time.value = 0
     originalTime.value = 0
+    
+    // Clear timer completion in service worker
+    clearBackgroundSync()
+    
     // Save progress when stopped
     saveProgress()
+  }
+
+  // Clear background sync when timer is stopped
+  const clearBackgroundSync = async () => {
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.ready
+        
+        if (registration.active) {
+          registration.active.postMessage({
+            type: 'CLEAR_TIMER'
+          })
+          console.log('Timer completion cleared in service worker')
+        }
+      } catch (error) {
+        console.error('Failed to clear background sync:', error)
+      }
+    }
   }
 
   const resetTimer = () => {

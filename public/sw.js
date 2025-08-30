@@ -3,8 +3,12 @@ const CACHE_NAME = 'eggtimer-v1'
 const NOTIFICATION_TITLE = '🥚 Egg Timer Complete!'
 const NOTIFICATION_BODY = 'Your egg is ready! Time to enjoy your perfectly cooked egg.'
 
+// Store timer completion time
+let timerCompletionTime = null
+
 // Install event - cache resources
 self.addEventListener('install', (event) => {
+  console.log('Service Worker installing...')
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll([
@@ -18,6 +22,7 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker activating...')
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -33,11 +38,24 @@ self.addEventListener('activate', (event) => {
 
 // Background sync event for timer completion
 self.addEventListener('sync', (event) => {
+  console.log('Background sync event triggered:', event.tag)
   if (event.tag === 'timer-complete') {
-    console.log('Background sync triggered for timer completion')
+    console.log('Timer completion sync triggered')
     event.waitUntil(showBackgroundNotification())
   }
 })
+
+// Periodic background check for timer completion
+const checkTimerCompletion = () => {
+  if (timerCompletionTime && Date.now() >= timerCompletionTime) {
+    console.log('Timer completion detected by periodic check')
+    showBackgroundNotification()
+    timerCompletionTime = null
+  }
+}
+
+// Start periodic checking
+setInterval(checkTimerCompletion, 1000)
 
 // Show notification when timer completes in background
 async function showBackgroundNotification() {
@@ -133,8 +151,20 @@ self.addEventListener('push', (event) => {
 
 // Message event for communication with main thread
 self.addEventListener('message', (event) => {
+  console.log('Service Worker received message:', event.data)
+  
   if (event.data && event.data.type === 'TIMER_COMPLETE') {
     console.log('Received timer complete message from main thread')
     event.waitUntil(showBackgroundNotification())
+  }
+  
+  if (event.data && event.data.type === 'SET_TIMER_COMPLETION') {
+    console.log('Setting timer completion time:', event.data.completionTime)
+    timerCompletionTime = event.data.completionTime
+  }
+  
+  if (event.data && event.data.type === 'CLEAR_TIMER') {
+    console.log('Clearing timer completion time')
+    timerCompletionTime = null
   }
 })
