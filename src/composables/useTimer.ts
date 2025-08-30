@@ -183,6 +183,51 @@ export function useTimer() {
     }
   }
 
+  // Background sync for timer completion
+  const scheduleBackgroundSync = async (remainingTime: number) => {
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.ready
+        
+        // Schedule background sync when timer will complete
+        setTimeout(async () => {
+          try {
+            // Try to use background sync if available
+            if ('sync' in (registration as any)) {
+              await (registration as any).sync.register('timer-complete')
+              console.log('Background sync scheduled for timer completion')
+            } else {
+              // Fallback: send message to service worker
+              if (registration.active) {
+                registration.active.postMessage({
+                  type: 'TIMER_COMPLETE'
+                })
+                console.log('Message sent to service worker for timer completion')
+              }
+            }
+          } catch (error) {
+            console.error('Background sync/message failed:', error)
+            
+            // Final fallback: try to send message
+            try {
+              if (registration.active) {
+                registration.active.postMessage({
+                  type: 'TIMER_COMPLETE'
+                })
+                console.log('Fallback message sent to service worker')
+              }
+            } catch (fallbackError) {
+              console.error('Fallback message also failed:', fallbackError)
+            }
+          }
+        }, remainingTime * 1000)
+        
+      } catch (error) {
+        console.error('Background sync setup failed:', error)
+      }
+    }
+  }
+
   // Load progress from localStorage
   const loadProgress = () => {
     const saved = localStorage.getItem('timerProgress')
@@ -201,6 +246,10 @@ export function useTimer() {
             originalTime.value = Math.round(progress.originalTime)
             isRunning.value = true
             isPaused.value = false
+            
+            // Automatically start the timer with remaining time
+            startTimerWithRemainingTime(remainingTime)
+            
             return true
           }
         } else if (progress.isPaused) {
@@ -216,6 +265,48 @@ export function useTimer() {
       }
     }
     return false
+  }
+
+  // Start timer with remaining time (without changing originalTime)
+  const startTimerWithRemainingTime = (remainingTime: number) => {
+    if (intervalId) {
+      clearInterval(intervalId)
+    }
+    
+    // Use the remaining time directly
+    time.value = Math.round(remainingTime)
+    isRunning.value = true
+    isPaused.value = false
+    
+    // Resume audio context when starting timer
+    resumeAudioContext()
+    
+    // Save progress
+    saveProgress()
+    
+    intervalId = setInterval(() => {
+      if (time.value > 0) {
+        time.value--
+        
+        // Save progress every second
+        saveProgress()
+        
+        // Play audio when 7 seconds remaining
+        if (time.value === 7) {
+          playAudio()
+        }
+        
+        // Show notification when timer ends
+        if (time.value === 0) {
+          showNotification('🥚 Egg Timer Complete!', {
+            body: 'Your egg is ready! Time to enjoy your perfectly cooked egg.',
+            requireInteraction: true
+          })
+        }
+      } else {
+        stopTimer()
+      }
+    }, 1000)
   }
 
   // Save egg selections
@@ -273,6 +364,9 @@ export function useTimer() {
     
     isRunning.value = true
     isPaused.value = false
+    
+    // Schedule background sync for timer completion
+    scheduleBackgroundSync(time.value)
     
     // Resume audio context when starting timer
     resumeAudioContext()

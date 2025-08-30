@@ -14,26 +14,25 @@ const showNotificationBanner = ref(false)
 
 const timer = useTimer()
 
-// Check notification permission and show banner if needed
+// Check notification status on mount
 const checkNotificationStatus = () => {
   const permission = timer.checkNotificationPermission()
+
+  // Only show banner if permission is default (not yet requested)
   if (permission === 'default') {
     showNotificationBanner.value = true
+  } else {
+    showNotificationBanner.value = false
   }
 }
 
 // Request notification permission
 const requestNotificationPermission = async () => {
-  const permission = await timer.requestNotificationPermission()
-  if (permission === 'granted') {
-    showNotificationBanner.value = false
-    // Show success message
-    showSuccessMessage('Notifications enabled! You\'ll now get notified when your timer is complete.')
-  } else if (permission === 'denied') {
-    showNotificationBanner.value = false
-    // Show info message
-    showInfoMessage('Notifications were denied. You can enable them later in your browser settings.')
-  }
+  await timer.requestNotificationPermission()
+  showNotificationBanner.value = false
+
+  // Store that we've requested permission
+  localStorage.setItem('notificationPermissionRequested', 'true')
 }
 
 // Dismiss notification banner
