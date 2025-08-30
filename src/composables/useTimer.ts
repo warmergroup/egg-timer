@@ -30,7 +30,7 @@ export function useTimer() {
           
           // If permission denied, show a helpful message
           if (permission === 'denied') {
-            console.log('Notification permission denied on mobile. User may need to enable in browser settings.')
+            // Silent handling for denied permission
           }
           
           return permission
@@ -53,8 +53,7 @@ export function useTimer() {
       const permission = Notification.permission
       notificationPermission.value = permission
       
-      // Log permission status for debugging
-      console.log('Notification permission status:', permission)
+      // Get current permission status
       
       return permission
     }
@@ -82,7 +81,7 @@ export function useTimer() {
             notification.close()
           }
           
-          console.log('Desktop notification shown:', title)
+          
         } catch (error) {
           console.warn('Desktop notification failed, falling back to in-app:', error)
           showInAppNotification(title)
@@ -93,7 +92,7 @@ export function useTimer() {
       }
     } else {
       // Permission not granted, always show in-app notification
-      console.log('Notification permission not granted, showing in-app notification')
+      // Show in-app notification when permission not granted
       showInAppNotification(title)
     }
   }
@@ -190,7 +189,7 @@ export function useTimer() {
       originalTime: originalTime.value
     }
     localStorage.setItem('timerCompletion', JSON.stringify(completion))
-    console.log('Timer completion time saved:', new Date(completion.completedAt))
+    
   }
 
   // Get elapsed time since timer completion
@@ -230,7 +229,6 @@ export function useTimer() {
             type: 'SET_TIMER_COMPLETION',
             completionTime: completionTime
           })
-          console.log('Timer completion time sent to service worker:', new Date(completionTime))
         }
         
         // Schedule background sync when timer will complete
@@ -239,14 +237,12 @@ export function useTimer() {
             // Try to use background sync if available
             if ('sync' in (registration as any)) {
               await (registration as any).sync.register('timer-complete')
-              console.log('Background sync scheduled for timer completion')
             } else {
               // Fallback: send message to service worker
               if (registration.active) {
                 registration.active.postMessage({
                   type: 'TIMER_COMPLETE'
                 })
-                console.log('Message sent to service worker for timer completion')
               }
             }
           } catch (error) {
@@ -258,7 +254,6 @@ export function useTimer() {
                 registration.active.postMessage({
                   type: 'TIMER_COMPLETE'
                 })
-                console.log('Fallback message sent to service worker')
               }
             } catch (fallbackError) {
               console.error('Fallback message also failed:', fallbackError)
@@ -526,7 +521,7 @@ export function useTimer() {
           registration.active.postMessage({
             type: 'CLEAR_TIMER'
           })
-          console.log('Timer completion cleared in service worker')
+          
         }
       } catch (error) {
         console.error('Failed to clear background sync:', error)
